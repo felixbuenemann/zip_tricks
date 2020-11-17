@@ -22,7 +22,7 @@ class ZipTricks::Streamer::DeflatedWriter
   # @param data[String] data to be written
   # @return self
   def <<(data)
-    @compressed_io << @deflater.deflate(data)
+    @deflater.deflate(data) { |chunk| @compressed_io << chunk }
     @crc << data
     self
   end
@@ -33,7 +33,7 @@ class ZipTricks::Streamer::DeflatedWriter
   #
   # @return [Hash] a hash of `{crc32, compressed_size, uncompressed_size}`
   def finish
-    @compressed_io << @deflater.finish until @deflater.finished?
+    @deflater.finish { |chunk| @compressed_io << chunk }
     {crc32: @crc.to_i, compressed_size: @deflater.total_out, uncompressed_size: @deflater.total_in}
   end
 end
