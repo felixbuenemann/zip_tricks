@@ -71,13 +71,12 @@ class ZipTricks::BlockDeflate
   # @return [String] compressed bytes
   def self.deflate_chunk(bytes, level: Zlib::DEFAULT_COMPRESSION)
     raise "Invalid Zlib compression level #{level}" unless VALID_COMPRESSIONS.include?(level)
-    z = Zlib::Deflate.new(level)
+    z = Zlib::Deflate.new(level, -::Zlib::MAX_WBITS)
     compressed_blob = z.deflate(bytes, Zlib::SYNC_FLUSH)
-    compressed_blob << z.finish
+    z.finish # discard end marker
     z.close
 
-    # Remove the header (2 bytes), the [3,0] end marker and the adler (4 bytes)
-    compressed_blob[2...-6]
+    compressed_blob
   end
 
   # Compress the contents of input_io into output_io, in blocks

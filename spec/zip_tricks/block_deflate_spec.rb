@@ -36,7 +36,7 @@ describe ZipTricks::BlockDeflate do
 
     it 'honors the compression level' do
       deflater = Zlib::Deflate.new
-      expect(Zlib::Deflate).to receive(:new).with(2) { deflater }
+      expect(Zlib::Deflate).to receive(:new).with(2, any_args) { deflater }
       blob = 'compressible' * (1024 * 4)
       described_class.deflate_chunk(blob, level: 2)
     end
